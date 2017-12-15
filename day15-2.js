@@ -1,31 +1,7 @@
 var _ = require('lodash');
-require('sugar');
+//require('sugar');
 
-let testInput = [
-    '0: 3',
-    '1: 2',
-    '4: 4',
-    '6: 4',
-];
-
-let tests = [
-    { program: "2", connections:  6},    
-];
-
-
-/*
-tests.forEach(input => {
-    var output = solve(testInput);
-
-    if (output.connections == input.connections) {
-        console.log("PASS: '" + input.program + "' " + input.connections);
-    } else {
-        console.log("FAIL: '" + input.program + "' " + output.connections + " != " + input.connections);        
-    }
-});
-*/
 //console.log(solve(65, 8921))
-// 1242
 
 function solve(aStart, bStart) {
     const aFactor = 16807
