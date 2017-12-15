@@ -1,4 +1,4 @@
-var _ = require('lodash');
+//var _ = require('lodash');
 //require('sugar');
 
 //console.log(solve(65, 8921))
@@ -31,10 +31,5 @@ function solve(aStart, bStart) {
         return result;
     }
 }
-
-
-let input = [
-
-];
 
 console.log(solve(783, 325));
