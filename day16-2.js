@@ -21,15 +21,13 @@ tests.forEach(input => {
     }
 });
 */
-
 /*
 if (solve('abcde', testInput) == 'baedc') {
     console.log('OK')
 } else {
-    console.log('Fail (not baedc)')
+    console.log('Fail')
 }
 */
-
 // baedc
 
 function solve(input, inputMoves) {
@@ -39,90 +37,57 @@ function solve(input, inputMoves) {
     let sRegex = /(.)(\d+)/
     let xRegex = /(.)(\d+)\/(\d+)/
     let pRegex = /(p{1})(.+)\/(.+)/
-    let matches;
+    let matches;    
 
-    let positionsStart = positions.slice(0);
-    let positionsMoves = positions.slice(0);
-    let partnerMoves = positions.slice(0);
+    let danceEnds = [];
+    const dances = 1000000000;
 
-    let partnerMoveMap = {};
-    moves.forEach(move => {
-        switch (move[0]) {
-            case 's':
-                matches = sRegex.exec(move)
-                spin(parseInt(parseInt(matches[2])))
-                break
-            case 'x':                
-                matches = xRegex.exec(move)
-                exchange(parseInt(matches[2]), parseInt(matches[3]))
-                break
-            case 'p':
-                matches = pRegex.exec(move)
-                partner(matches[2], matches[3]);
-                //partnerMoveMap[matches[2]] = matches[3]
-                break
+    for (let dance = 0; dance < dances; dance++) {
+        if (dance % 100 == 0) console.log(dance)
+        moves.forEach(move => {
+            switch (move[0]) {
+                case 's':
+                    matches = sRegex.exec(move)
+                    spin(parseInt(parseInt(matches[2])))
+                    break
+                case 'x':                
+                    matches = xRegex.exec(move)
+                    exchange(parseInt(matches[2]), parseInt(matches[3]))
+                    break
+                case 'p':
+                    matches = pRegex.exec(move)
+                    partner(matches[2], matches[3])
+                    break
+            }
+            //console.log(positions.join(''))
+        });
+        let positionsText = positions.join('');
+        //console.log(positionsText)
+        if (danceEnds.indexOf(positionsText) == -1) {
+            danceEnds.push(positionsText);
+        } else {
+            console.log('Repeat at ' + dance)
+            return danceEnds[(dances % (dance + 1)) + 1];
         }
-        //console.log(positions.join(''))
-    });
-    
-    let positionsMoveMap = {};
-    positionsStart.forEach((startPosition, index) => {
-        positionsMoveMap[startPosition] = positionsMoves[index]
-        partnerMoveMap[startPosition] = partnerMoves[index];
-    });
-
-    for (let dance = 0; dance < 1000000000; dance++) {
-        if (dance % 1000000 == 0) console.log(dance + ' ' + positions.join(''))
-        let newPositions = [];
-        positions.forEach(position => {
-            newPositions.push(positionsMoveMap[position])
-        });
-
-        //console.log(newPositions.join(''));
-
-        let newPartnerPositions = [];
-        _.forEach(newPositions, from => {
-            newPartnerPositions.push(partnerMoveMap[from]);
-        });
-        positions = newPartnerPositions.slice(0)
     }
-    console.log(positions.join(''));
-    return positions.join('')
 
     function spin(a) {
-        //console.log('Spin ' + a);
-        for (let index = 0; index < a; index++) {
-            positionsMoves = [positionsMoves.pop()].concat(positionsMoves)
-        }
+        positions = positions.splice(-a).concat(positions)
     }
     function exchange(a, b) {
-        //console.log('Exchange ' + a + ' ' + b)
-        let oldA = positionsMoves[a];
-        positionsMoves[a] = positionsMoves[b];
-        positionsMoves[b] = oldA
+        [positions[a], positions[b]] = [positions[b], positions[a]]
     }
     function partner(a, b) {
-        //console.log('Partner ' + a + ' ' + b)
-        let aPos = partnerMoves.indexOf(a)
-        let bPos = partnerMoves.indexOf(b)
-        let oldA = partnerMoves[aPos];
-        partnerMoves[aPos] = partnerMoves[bPos];
-        partnerMoves[bPos] = oldA
+        let aPos = positions.indexOf(a)
+        let bPos = positions.indexOf(b)
+        exchange(aPos, bPos)
     }
-    function swap(a, b, inputArray) {
-        //console.log('Partner ' + a + ' ' + b)
-        let aPos = inputArray.indexOf(a)
-        let bPos = inputArray.indexOf(b)
-        let oldA = inputArray[aPos];
-        inputArray[aPos] = inputArray[bPos];
-        inputArray[bPos] = oldA
-    }
-
 }
 
 
 fs = require('fs');
 fs.readFile('day16input.txt', 'utf-8', (err, data) =>{
     console.log(solve('abcdefghijklmnop', data));
-    console.log('glnacbhedpfjkiom (should be)');
+    // not bipnfgmhjkolecad
+    // not kiemnajbogpcfdlh
 });
