@@ -64,7 +64,7 @@ let input =[
     'jgz a -19',    
 ]
 
-//console.log(solve(input))
+console.log(solve(input))
 
 function solve(input) {
     let registers = {}
@@ -74,8 +74,14 @@ function solve(input) {
 
         let instruction = {
             op: parts[0],
-            targetReg: parts[1],            
         }
+        let sourceValue = parseInt(parts[1])
+        if (isNaN(sourceValue)) {
+            instruction.targetReg = parts[1]
+        } else {
+            instruction.targetValue = sourceValue
+        }
+
         if (parts.length == 3) {
             let value = parseInt(parts[2])
             if (isNaN(value)) {
@@ -121,9 +127,12 @@ function solve(input) {
             let check = getRegOrValTarget(instruction, registers)
             if (check > 0) {
                 ip = ip + getRegOrVal(instruction, registers)
+            } else {
+                ip++
             }
+        } else {
+            ip++
         }
-        ip++
         instructionsExecuted++
     }
     
@@ -144,7 +153,7 @@ function solve(input) {
         if (instruction.targetReg != undefined) {
             return getReg(instruction.targetReg, registers)            
         } else {
-            return instruction.value
+            return instruction.targetValue
         }
     }
 
