@@ -75,10 +75,7 @@ function solve(input) {
                 } else {
                     particle.active = false
                     positions[posString].active = false
-                    console.log('Bang')
-                }
-    
-                //console.log('Particle: ' + index + ' distance ' + particle.distance)
+                }    
             }
         });
 
@@ -100,14 +97,16 @@ function solve(input) {
     }, 0)
     
     function canGetCloser(particle) {
-        if (particle.vel.x + particle.acc.x > 0 && particle.pos.x < 0) return true;
-        if (particle.vel.x + particle.acc.x < 0 && particle.pos.x > 0) return true;
+        if (particle.vel.x + particle.acc.x > 0 && particle.pos.x < 0) return true
+        if (particle.vel.x + particle.acc.x < 0 && particle.pos.x > 0) return true
 
-        if (particle.vel.y + particle.acc.y > 0 && particle.pos.y < 0) return true;
-        if (particle.vel.y + particle.acc.y < 0 && particle.pos.y > 0) return true;
+        if (particle.vel.y + particle.acc.y > 0 && particle.pos.y < 0) return true
+        if (particle.vel.y + particle.acc.y < 0 && particle.pos.y > 0) return true
 
-        if (particle.vel.z + particle.acc.z > 0 && particle.pos.z < 0) return true;
-        if (particle.vel.z + particle.acc.z < 0 && particle.pos.z > 0) return true;
+        if (particle.vel.z + particle.acc.z > 0 && particle.pos.z < 0) return true
+        if (particle.vel.z + particle.acc.z < 0 && particle.pos.z > 0) return true
+
+        return false
     }
 }
 
