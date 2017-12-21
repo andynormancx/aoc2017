@@ -33,14 +33,62 @@ if (solve('abcde', testInput) == 'baedc') {
 test(gridToString, [[['1', '2'], ['3', '4']]], '12/34', 'gridToString')
 test(stringToGrid, ['12/34'], [['1', '2'], ['3', '4']], 'stringToGrid')
 test(rotate90CW, [[['1', '2'], ['3', '4']]], [['3', '1'], ['4', '2']], 'rotate90CW')
+test(flipVert, [[['1', '2'], ['3', '4']]], [['3', '4'], ['1', '2']], 'flipVert')
+test(flipHorz, [[['1', '2'], ['3', '4']]], [['2', '1'], ['4', '3']], 'flipHorz')
+
+let unchunked = [
+    ['1', '2', '3', '4'],
+    ['5', '6', '7', '8'],
+    ['9', '10', '11', '12'],
+    ['13', '14', '15', '16']
+]
+let chunked = [
+    [[
+        [
+            '1', '2'
+        ],
+        [
+            '5', '6'
+        ]
+    ],
+    [
+        [
+            '3', '4'
+        ],
+        [
+            '7', '8'
+        ]
+    ]],
+    [[
+        [
+            '9', '10'
+        ],
+        [
+            '13', '14'
+        ]
+
+    ],
+    [
+        [
+            '11', '12'
+        ],
+        [
+            '15', '16'
+        ]
+    ]],
+]
+
+test(splitGrid, [unchunked, 2], chunked, 'splitGrid')
+console.log(JSON.stringify(chunked))
+test(mergeChunks, [chunked, 2, 4], unchunked, 'mergeChunks')
 
 function test(func, args, shouldReturn, desc) {
     let result = func.apply(this, args)
     
     if (_.isEqual(result, shouldReturn)) {
-        console.log('PASS: ' + desc + ' ' + shouldReturn)
+        console.log('PASS: ' + desc + ' ' + JSON.stringify(shouldReturn))
     } else {
-        console.log('FAIL: ' + desc + ' returned: ' + result + ' should be: ' + shouldReturn)
+        console.log('FAIL: ' + desc + ' returned: \n' + JSON.stringify(result) + ' should be: \n' + JSON.stringify(shouldReturn))
     }
 }
 
@@ -61,12 +109,16 @@ function solve(rounds, input) {
             console.log('Duplicate in pattern: ' + patternKey);
         }
         patternsMap[patternKey] = pattern;
+        console.log('Adding: '+ patternKey)
 
-        for (let rotate = 0; rotate < 4; rotate++) {
+        for (let rotate = 0; rotate < 3; rotate++) {
             pattern.in = rotate90CW(pattern.in)
             patternKey = gridToString(pattern.in)
             if (patternsMap[patternKey] === undefined) { // some patterns have rotational symetry
+                console.log('Adding: '+ patternKey)
                 patternsMap[patternKey] = pattern;
+            } else {
+                console.log('NOT Adding: '+ patternKey)                
             }
         }
     });
@@ -79,11 +131,125 @@ function solve(rounds, input) {
     let grid = start.slice(0)
 
     for (let round = 0; round < rounds; round++) {
-        if (grid.length % 3 == 0) {
-
+        if (grid.length % 2 == 0) {
+            
+        }
+        else if (grid.length % 3 == 0) {
+            debugger
+            let gridChunks = splitGrid(grid, 3)
+            let enhancementPatternKey = gridToPatternKey(grid, patternsMap)
+            debugger
         }
     }
 }
+
+/*
+['1', '2', '3', '4'],
+['5', '6', '7', '8'],
+['9', '10', '11', '12'],
+['13', '14', '15', '16']
+
+[[
+    [
+        '1', '2'
+    ],
+    [
+        '5', '6'
+    ]
+],
+[
+    [
+        '3', '4'
+    ],
+    [
+        '7', '8'
+    ]
+]],
+*/
+
+function splitGrid(grid, chunkSize) {
+    if (grid.length === chunkSize) {
+        return grid.slice(0)
+    }
+    let output = []
+    
+    let chunks = []
+
+    for (let rowChunkIndex = 0; rowChunkIndex < grid.length / chunkSize; rowChunkIndex++) {
+        let rowChunk = []
+        for (let colChunkIndex = 0; colChunkIndex < grid.length / chunkSize; colChunkIndex++) {
+            let rowChunkInner = []
+            for (let rowInnerChunk = 0; rowInnerChunk < chunkSize; rowInnerChunk++) {
+                let colChunkInner = []
+                for (let colInnerChunk = 0; colInnerChunk < chunkSize; colInnerChunk++) {
+                    colChunkInner.push(grid[(rowChunkIndex * chunkSize) + rowInnerChunk][(colChunkIndex * chunkSize) + colInnerChunk])
+                }
+                rowChunkInner.push(colChunkInner)
+            }
+            chunks.push(rowChunkInner)
+            rowChunk.push(rowChunkInner)
+        }
+        output.push(rowChunk)
+    }
+
+    return output;
+}
+
+function mergeChunks(gridChunks, chunkSize, gridSize) {
+    let output = []
+    for (let rowIndex = 0; rowIndex < gridSize; rowIndex++) {
+        let row = []
+        for (let rowChunkIndex = 0; rowChunkIndex < gridChunks.length / chunkSize; rowChunkIndex++) {
+            for (let colChunkIndex = 0; colChunkIndex < gridChunks.length / chunkSize; colChunkIndex++) {
+                for (let colInnerChunkIndex = 0; colInnerChunkIndex < gridSize / chunkSize; colInnerChunkIndex++) {
+                    for (let rowInnerChunkIndex = 0; rowInnerChunkIndex < gridSize / chunkSize; rowInnerChunkIndex++) {
+                        row.push(gridChunks[Math.floor(rowIndex / chunkSize)][colChunkIndex + rowChunkIndex][colInnerChunkIndex][rowInnerChunkIndex])
+                        debugger
+
+                        [0]
+                    }
+                }
+            }
+        }
+        output.push(row)
+    }
+
+    return output
+}
+
+function gridToPatternKey(grid, patternsMap) {
+    let patternKey
+    let gridToSearch = grid.slice(0)
+    let rotate = 0
+    let matchedKey
+    while(rotate < 4) {
+        patternKey = gridToString(gridToSearch)
+        if (patternsMap[patternKey] !== undefined) {
+            matchedKey = patternKey
+            break
+        }
+        gridToSearch = rotate90CW(gridToSearch)
+        rotate++
+    }
+    if (matchedKey === undefined) {
+        patternKey = gridToString(flipHorz(grid.slice(0)))
+        if (patternsMap[patternKey] === undefined) {
+            patternKey = gridToString(flipVert(grid.slice(0)))
+            if (patternsMap[patternKey] !== undefined) {
+                matchedKey = patternKey
+            } else {
+                console.log('No enhancement for: ' + gridToString(grid))
+            }
+        } else {
+            matchedKey = patternKey
+        }
+        debugger
+    } else {
+        matchedKey = patternKey
+    }
+    return matchedKey
+}
+
 function rotate90CW(input) {
     let output = []
     let size = input.length
@@ -97,6 +263,30 @@ function rotate90CW(input) {
     }
     return output
 }
+
+function flipVert(input) {
+    let output = []
+    let size = input.length
+    for(let row = 0; row < size; row++) {
+        output[size - row - 1] = input[row]
+    }
+    return output
+}
+
+function flipHorz(input) {
+    let output = []
+    let size = input.length
+    for(let row = 0; row < size; row++) {
+        output[row] = []
+    }
+    for(let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+            output[size - col - 1][row] = input[row][col]
+        }
+    }
+    return output
+}
+
 function gridToString(grid) {
     let output = ''
     for(let row = 0; row < grid.length; row++) {
@@ -113,8 +303,9 @@ function stringToGrid(input) {
     })
 }
 
-
+/*
 fs = require('fs');
 fs.readFile('day21input.txt', 'utf-8', (err, data) =>{
     console.log(solve(5, data));
 });
+*/
