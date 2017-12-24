@@ -1,19 +1,12 @@
 let a = 1
-let b = 0
-let c = 0
+let b = 107900
+let c = 124900
 let d = 0
 let e = 0
 let f = 0
 let g = 0
 let h = 0
-b = 79// 0 set b 79
-c = b// 1 set c b
-// 2 jnz a 2
-// 3 jnz 1 5
-b = b * 100// 4 mul b 100
-b = b + 100000// 5 sub b -100000
-c = b// 6 set c b
-c = c + 17000// 7 sub c -17000
+
 do {
     f = 1// 8 set f 1
     d = 2// 9 set d 2
