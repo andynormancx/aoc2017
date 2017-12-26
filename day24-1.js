@@ -72,11 +72,12 @@ let input = [
     '48/14',
 ]
 
-test(solve, testInput, 31, 'solve test')
+test(solve, [testInput], 31, 'solve test')
+//test(solve, [input], 31, 'solve real')
 
 
 function test(func, args, shouldReturn, desc) {
-    let result = func.apply(this, [args])
+    let result = func.apply(this, args)
     
     if (_.isEqual(result, shouldReturn)) {
         console.log('PASS: ' + desc + ' ' + JSON.stringify(shouldReturn))
@@ -86,11 +87,10 @@ function test(func, args, shouldReturn, desc) {
 }
 
 function solve(input) {
-    let components = []
     let portMap = {}
     let componentsMap = {}
 
-    let components = input.map(line => {
+    let components = input.map((line, index) => {
         let parts = line.split('/')
 
         port1 = parseInt(parts[0])
@@ -98,6 +98,7 @@ function solve(input) {
 
         let component = {
             id: line,
+            index: index,
             ports: [port1, port2]
         }
 
@@ -105,23 +106,66 @@ function solve(input) {
         return component
     });
 
+    let bridges = []
     components.forEach(component => {
-        if (component.ports[0] !== 0 && component.ports[1] !== 0) {
-            bridge(component, componentsMap)
+        if (component.ports[0] === 0) {
+            //bridge(0, component, portMap, [], bridges)
+            bridge(0, component, portMap, [], bridges)
         }
     })
 
+    let maxScore = bridges.reduce((max, bridge) => {
+        let bridgeScore = bridge.reduce((score, component) => {
+            bridge.score = score
+            return score + component.ports[0] + component.ports[1]
+        }, 0)
 
+        return Math.max(max, bridgeScore)
+    }, 0)
     debugger
-    return 1
+    return maxScore
 }
 
-function bridge(component, componentsMap) {
-    let joins = []
+function bridge(usedPort, component, portMap, joins, bridges) {
+    //if (component.id === '3/4') debugger
+    let unusedPort = usedPort === 0 ? 1 : 0
+    let unusedPortNumber = component.ports[unusedPort]
 
+    let localJoins = joins.concat([component])
+
+    if (component.ports[unusedPort] === 0) {
+        bridges.push(localJoins)
+        return
+    }
+    // get a local copy of the ports map
+    let localPortsMap = JSON.parse(JSON.stringify(portMap))
     
+    // remove ourselves from the port map
 
-    return joins
+    _.remove(localPortsMap[component.ports[0]], componentCheck => {
+        return component.index === componentCheck.index
+    })
+    _.remove(localPortsMap[component.ports[1]], componentCheck => {
+        return component.index === componentCheck.index
+    })
+    
+    let foundMatches = false
+    localPortsMap[component.ports[unusedPort]].forEach(childComponent => {
+        if (childComponent.ports[0] === unusedPortNumber) {
+            bridge(0, childComponent, localPortsMap, localJoins, bridges)
+            foundMatches = true     
+        }
+        if (childComponent.ports[1] === unusedPortNumber) {
+            bridge(1, childComponent, localPortsMap, localJoins, bridges)
+            foundMatches = true     
+        }
+    })
+
+    if (!foundMatches) {
+        bridges.push(localJoins)
+    }
+
+    return
 }
 
 function addToPortMap(portMap, component) {
