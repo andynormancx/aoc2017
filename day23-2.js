@@ -14,7 +14,8 @@ let input =[
     'set f 1', // 9
     'set d 2',// 10
     'set e 2',// 11
-    'set g d',// 12
+
+    'set g d',// 12 - entry
     'mul g e',// 13
     'sub g b',// 14
     'jnz g 2',// 15 - skips next ;ine
@@ -23,6 +24,7 @@ let input =[
     'set g e',// 18
     'sub g b',// 19
     'jnz g -8',// 20 - jumps to 12
+    
     'sub d -1',// 21
     'set g d',// 22
     'sub g b',// 23
@@ -87,7 +89,7 @@ function solve(input) {
         itCount++
         if (itCount % 10000000 === 0) {
             //console.log('itCount ' + itCount)
-            console.log(JSON.stringify(prog.registers))
+            //console.log(JSON.stringify(prog.registers))
         }
 
         if (getReg('d', prog.registers) != oldD) {
@@ -113,6 +115,9 @@ function solve(input) {
                 mulCount++
                 mulReg(instruction, prog.registers)
                 break
+        }
+        if (instruction.ins === 'sub d -1') {
+            console.log(JSON.stringify(prog.registers))
         }
         if (instruction.op == 'jnz') {
             let check = getRegOrValTarget(instruction, prog.registers)
