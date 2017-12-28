@@ -3,40 +3,41 @@ var _ = require('lodash')
 
 
 let input =[
-    'set b 79',// 1
-    'set c b',// 2
-    'jnz a 2',// 3
-    'jnz 1 5',// 4
-    'mul b 100', // 5
-    'sub b -100000', // 6
-    'set c b', // 7
-    'sub c -17000', // 8
-    'set f 1', // 9
-    'set d 2',// 10
-    'set e 2',// 11
+    'set b 79', //1 - 
+    'set c b', //2 - 
+    'jnz a 2', //3 - 
+    'jnz 1 5', //4 - 
+    'mul b 100', //5 - 
+    'sub b -100000', //6 - 
+    'set c b', //7 - 
+    'sub c -17000', //8 - 
+    'set f 1', //9 - 
+    'set d 2', //10 - 
+        'set e 2', //11 - 
+            'set g d', //12 - 
+            'mul g e', //13 - 
+            'sub g b', //14 - 
+            'jnz g 2', //15 - 
+                'set f 0', //16 - 
+            'sub e -1', //17 - 
+            'set g e', //18 - 
+            'sub g b', //19 - 
+            'jnz g -8', //20 - 12
+        'sub d -1', //21 - 
+        'set g d', //22 - 
+        'sub g b', //23 - 
+    'jnz g -13', //24 - 11
 
-    'set g d',// 12 - entry
-    'mul g e',// 13
-    'sub g b',// 14
-    'jnz g 2',// 15 - skips next ;ine
-    'set f 0',// 16
-    'sub e -1',// 17
-    'set g e',// 18
-    'sub g b',// 19
-    'jnz g -8',// 20 - jumps to 12
-    
-    'sub d -1',// 21
-    'set g d',// 22
-    'sub g b',// 23
-    'jnz g -13',// 34
-    'jnz f 2',// 25 - jumps past next line
-    'sub h -1',// 26
-    'set g b',// 27
-    'sub g c',// 28
-    'jnz g 2',// 29 - jumps past next line
-    'jnz 1 3',// 30 - jumps to past end
-    'sub b -17',// 31
-    'jnz 1 -23',// 32 - jumps to 9
+    'jnz f 2', //25 - 
+        'sub h -1', //26 - 
+
+    'set g b', //27 - 
+    'sub g c', //28 - 
+    'jnz g 2', //29 - 
+        'jnz 1 3', //30 - 
+        
+    'sub b -17', //31 - 
+    'jnz 1 -23', //32 - 9
 ]
 
 console.log(solve(input))
@@ -92,10 +93,6 @@ function solve(input) {
             //console.log(JSON.stringify(prog.registers))
         }
 
-        if (getReg('d', prog.registers) != oldD) {
-            debugger
-            oldD = getReg('d', prog.registers)
-        }
         switch (instruction.op) {
             case 'set':
                 setReg(instruction, prog.registers)
@@ -105,20 +102,20 @@ function solve(input) {
                 break
             case 'sub':
                 subReg(instruction, prog.registers)
-                if (instruction.op.targetReg == 'h') {
-                    console.log(itCount)
-                    console.log(JSON.stringify(prog.registers))
-                    prog.ip = 10000
-                }
                 break
             case 'mul':
                 mulCount++
                 mulReg(instruction, prog.registers)
                 break
-        }
+        }        
         if (instruction.ins === 'sub d -1') {
             console.log(JSON.stringify(prog.registers))
         }
+        /*
+        if (instruction.ins === 'sub d -1') {
+            console.log(JSON.stringify(prog.registers))
+        }
+        */
         if (instruction.op == 'jnz') {
             let check = getRegOrValTarget(instruction, prog.registers)
             if (check != 0) {
@@ -131,6 +128,7 @@ function solve(input) {
         }
     }
 
+    console.log(JSON.stringify(prog.registers))
     return mulCount
 
     function getReg(regName, registers) {
