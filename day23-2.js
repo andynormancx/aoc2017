@@ -11,33 +11,39 @@ let input =[
     'sub b -100000', //6 - 
     'set c b', //7 - 
     'sub c -17000', //8 - 
-    'set f 1', //9 - 
-    'set d 2', //10 - 
-        'set e 2', //11 - 
-            'set g d', //12 - 
-            'mul g e', //13 - 
-            'sub g b', //14 - 
-            'jnz g 2', //15 - 
-                'set f 0', //16 - 
-            'sub e -1', //17 - 
-            'set g e', //18 - 
-            'sub g b', //19 - 
-            'jnz g -8', //20 - 12
-        'sub d -1', //21 - 
-        'set g d', //22 - 
-        'sub g b', //23 - 
-    'jnz g -13', //24 - 11
+        'set f 1', //9 - 
+        'set d 2', //10 - 
+                /*
+                'set e 2', //11 - 
+                        'set g d', //12 - 
+                        'mul g e', //13 - 
+                        'sub g b', //14 - 
+                        'jnz g 2', //15 - 
+                        'set f 0', //16 - 
+                        'sub e -1', //17 - 
+                        'set g e', //18 - 
+                        'sub g b', //19 - 
+                    'jnz g -8', //20 - 12
+                */
+                'set g 0', // new 11
+                'set f 0',
+                    
+                'sub d -1', //21 - 
+                'set g d', //22 - 
+                'sub g b', //23 - 
+            'jnz g -5', //24 - 11
 
-    'jnz f 2', //25 - 
-        'sub h -1', //26 - 
+        'jnz f 2', //25 - 
+            'sub h -1', //26 - 
 
-    'set g b', //27 - 
-    'sub g c', //28 - 
-    'jnz g 2', //29 - 
-        'jnz 1 3', //30 - 
+        'set g b', //27 - 
+        'sub g c', //28 - 
         
-    'sub b -17', //31 - 
-    'jnz 1 -23', //32 - 9
+        'jnz g 2', //29 - 
+            'jnz 1 3', //30 - 
+
+        'sub b -17', //31 - 
+    'jnz 1 -15', //32 - 9
 ]
 
 console.log(solve(input))
