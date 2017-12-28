@@ -73,7 +73,7 @@ let input = [
 ]
 
 test(solve, [testInput], 31, 'solve test')
-//test(solve, [input], 31, 'solve real')
+test(solve, [input], 1695, 'solve real')
 
 
 function test(func, args, shouldReturn, desc) {
@@ -102,81 +102,47 @@ function solve(input) {
             ports: [port1, port2]
         }
 
-        addToPortMap(portMap, component)
         return component
     });
 
-    let bridges = []
-    components.forEach(component => {
-        if (component.ports[0] === 0) {
-            //bridge(0, component, portMap, [], bridges)
-            bridge(0, component, portMap, [], bridges)
-        }
-    })
+    let bridges = getBridges(0, components, { strength: 0, chainLength: 0, path: '' })
 
     let maxScore = bridges.reduce((max, bridge) => {
-        let bridgeScore = bridge.reduce((score, component) => {
-            bridge.score = score
-            return score + component.ports[0] + component.ports[1]
-        }, 0)
-
-        return Math.max(max, bridgeScore)
+        return Math.max(max, bridge.strength)
     }, 0)
-    debugger
-    return maxScore
+
+    let longest = bridges.reduce((max, bridge) => {
+        return Math.max(max, bridge.chainLength)
+    }, 0)
+
+    longestBridges = bridges.filter(bridge => bridge.chainLength === longest)
+    longestBridges = longestBridges.sort((a,b) => b.strength - a.strength)
+    //_.findIndex(bridges, ['chainLength', longest])
+
+
+    return { maxScore: maxScore, longest: longestBridges[0].strength }
 }
 
-function bridge(usedPort, component, portMap, joins, bridges) {
-    //if (component.id === '3/4') debugger
-    let unusedPort = usedPort === 0 ? 1 : 0
-    let unusedPortNumber = component.ports[unusedPort]
+function getBridges(unusedPort, components, bridge) {
+    let bridges = []
 
-    let localJoins = joins.concat([component])
+    components.forEach((component, index) => {
+        if (component.ports[0] === unusedPort || component.ports[1] === unusedPort) {
+            let nextUnusedPort = unusedPort === component.ports[0] ? component.ports[1] : component.ports[0]
+            let nextBridge = {
+                strength: bridge.strength + component.ports[0] + component.ports[1],
+                chainLength: bridge.chainLength + 1,
+                path: bridge.path + unusedPort + '/' + nextUnusedPort + ' '
+            }
 
-    if (component.ports[unusedPort] === 0) {
-        bridges.push(localJoins)
-        return
-    }
-    // get a local copy of the ports map
-    let localPortsMap = JSON.parse(JSON.stringify(portMap))
-    
-    // remove ourselves from the port map
+            let remainingComponents = components.slice()
+            remainingComponents.splice(index, 1) // remove the next comp form the list
+            bridges.push(nextBridge)
 
-    _.remove(localPortsMap[component.ports[0]], componentCheck => {
-        return component.index === componentCheck.index
-    })
-    _.remove(localPortsMap[component.ports[1]], componentCheck => {
-        return component.index === componentCheck.index
-    })
-    
-    let foundMatches = false
-    localPortsMap[component.ports[unusedPort]].forEach(childComponent => {
-        if (childComponent.ports[0] === unusedPortNumber) {
-            bridge(0, childComponent, localPortsMap, localJoins, bridges)
-            foundMatches = true     
-        }
-        if (childComponent.ports[1] === unusedPortNumber) {
-            bridge(1, childComponent, localPortsMap, localJoins, bridges)
-            foundMatches = true     
+
+            bridges = bridges.concat(getBridges(nextUnusedPort, remainingComponents, nextBridge))
         }
     })
-
-    if (!foundMatches) {
-        bridges.push(localJoins)
-    }
-
-    return
-}
-
-function addToPortMap(portMap, component) {
-    if (portMap[component.ports[0]] === undefined) {
-        portMap[component.ports[0]] = [component]
-    } else {
-        portMap[component.ports[0]].push(component)
-    }
-    if (portMap[component.ports[1]] === undefined) {
-        portMap[component.ports[1]] = [component]
-    } else {
-        portMap[component.ports[1]].push(component)
-    }
+    
+    return bridges
 }
