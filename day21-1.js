@@ -43,7 +43,7 @@ let unchunked = [
     ['13', '14', '15', '16']
 ]
 let chunked = [
-    [[
+    [
         [
             '1', '2'
         ],
@@ -58,8 +58,8 @@ let chunked = [
         [
             '7', '8'
         ]
-    ]],
-    [[
+    ],
+    [
         [
             '9', '10'
         ],
@@ -75,7 +75,7 @@ let chunked = [
         [
             '15', '16'
         ]
-    ]],
+    ],
 ]
 
 test(splitGrid, [unchunked, 2], chunked, 'splitGrid')
@@ -192,26 +192,25 @@ function splitGrid(grid, chunkSize) {
         output.push(rowChunk)
     }
 
-    return output;
+    return chunks;
 }
 
 function mergeChunks(gridChunks, chunkSize, gridSize) {
     let output = []
-    for (let rowIndex = 0; rowIndex < gridSize; rowIndex++) {
-        let row = []
-        for (let rowChunkIndex = 0; rowChunkIndex < gridChunks.length / chunkSize; rowChunkIndex++) {
-            for (let colChunkIndex = 0; colChunkIndex < gridChunks.length / chunkSize; colChunkIndex++) {
-                for (let colInnerChunkIndex = 0; colInnerChunkIndex < gridSize / chunkSize; colInnerChunkIndex++) {
-                    for (let rowInnerChunkIndex = 0; rowInnerChunkIndex < gridSize / chunkSize; rowInnerChunkIndex++) {
-                        row.push(gridChunks[Math.floor(rowIndex / chunkSize)][colChunkIndex + rowChunkIndex][colInnerChunkIndex][rowInnerChunkIndex])
-                        debugger
 
-                        [0]
-                    }
-                }
+    for(let outputRow = 0; outputRow < gridSize; outputRow++) {
+        output[outputRow] = []
+    }
+
+    for (let chunkIndex = 0; chunkIndex < gridChunks.length; chunkIndex++) {
+        let outputColIndex = chunkIndex % (gridSize / chunkSize)
+        let outputRowIndex = Math.floor(chunkIndex / chunkSize)
+
+        for (let chunkRow = 0; chunkRow < chunkSize; chunkRow++) {
+            for (let chunkCol = 0; chunkCol < chunkSize; chunkCol++) {
+                output[outputRowIndex * chunkSize + chunkRow][outputColIndex * chunkSize + chunkCol] = gridChunks[chunkIndex][chunkRow][chunkCol]
             }
         }
-        output.push(row)
     }
 
     return output
