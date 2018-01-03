@@ -281,7 +281,7 @@ function flipHorz(input) {
     }
     for(let row = 0; row < size; row++) {
         for (let col = 0; col < size; col++) {
-            output[size - col - 1][row] = input[row][col]
+            output[row][size - col - 1] = input[row][col]
         }
     }
     return output
